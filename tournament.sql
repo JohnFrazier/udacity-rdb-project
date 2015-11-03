@@ -10,13 +10,13 @@ create table players (id serial primary key, name varchar(80));
 
 
 create table matches (
-	id serial primary key, player1_id integer, player2_id integer);
+	id serial primary key, winner_id integer, loser_id integer);
 
 
 create table player_game_stats(
 	-- create a row for each player and game
 	id serial primary key, match_id integer, player_id integer,
-	score integer, player_won boolean);
+	player_won boolean);
 
 
 -- standings view returns id, name, win count, and match count

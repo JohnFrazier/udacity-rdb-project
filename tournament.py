@@ -88,7 +88,7 @@ def reportMatch(winner, loser):
     # insert into matches, return new match id.
     db, cur = connect()
     cur.execute(
-        "insert into matches (player1_id, player2_id) "
+        "insert into matches (winner_id, loser_id) "
         "values (%s, %s) returning id;", (winner, loser))
     (matchid,) = cur.fetchone()
 
