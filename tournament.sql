@@ -6,6 +6,7 @@
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
 
+
 create table players (id serial primary key, name varchar(80));
 
 
@@ -33,3 +34,34 @@ create view standings as
 	group by players.id
 	order by wins desc;
 
+
+-- whenever an row goes into matches, insert rows in player_game_stats
+-- for the match players
+create or replace function fill_player_stats() returns trigger as $$
+begin
+	insert into player_game_stats(match_id, player_id, player_won)
+	values(new.id, new.winner_id, true);
+
+	insert into player_game_stats(match_id, player_id, player_won)
+	values(new.id, new.loser_id, false);
+
+	return new;
+end
+$$ language plpgsql;
+
+create trigger fill_on_match after insert on matches for each row
+	execute procedure fill_player_stats();
+
+
+-- whenever players are removed, remove them from player_game_stats
+-- and matches
+
+create function removed_player() returns trigger as $$
+begin
+	delete from player_game_stats where player_id = old.id;
+
+	return old;
+end $$ language plpgsql;
+
+create trigger remove_player before delete on players for each row
+	execute procedure removed_player();
