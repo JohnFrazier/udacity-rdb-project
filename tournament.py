@@ -72,6 +72,7 @@ def playerStandings():
     db, cur = connect()
     cur.execute("select * from standings;")
     ret = cur.fetchall()
+    cur.close()
     return ret
 
 
@@ -82,31 +83,14 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
-    winning_score = 3
-    losing_score = 0
 
     # insert into matches, return new match id.
     db, cur = connect()
     cur.execute(
         "insert into matches (winner_id, loser_id) "
         "values (%s, %s) returning id;", (winner, loser))
-    (matchid,) = cur.fetchone()
-
-    # create player stats entry for each player
-
-    cur.execute(
-        "insert into player_game_stats "
-        "(match_id, player_id, score, player_won) values "
-        "(%s, %s, %s, %s);",
-        (matchid, winner, winning_score, True))
-
-    cur.execute(
-        "insert into player_game_stats "
-        "(match_id, player_id, score, player_won) values "
-        "(%s, %s, %s, %s);",
-        (matchid, loser, losing_score, False))
-
     db.commit()
+    cur.close()
 
 
 def swissPairings():
@@ -131,5 +115,6 @@ def swissPairings():
     p = cur.fetchall()
     # slice players list and pair up top players
     ret = [(a[0], a[1], b[0], b[1]) for a, b in zip(p[::2], p[1::2])]
-    print ret
+    cur.close()
+
     return ret

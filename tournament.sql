@@ -6,30 +6,43 @@
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
 
-create table players (id serial primary key, name varchar(80));
+drop database tournament;
+create database tournament;
+\c tournament;
 
+create table players (id serial primary key, name text);
+
+create view player_count as
+	select coalesce(count(id), '0') as sum
+	from players;
 
 create table matches (
 	id serial primary key, winner_id integer, loser_id integer);
 
+-- count player losses
+create view losers as
+  select loser_id as id, count(loser_id) as matches from matches 
+	group by loser_id;
 
-create table player_game_stats(
-	-- create a row for each player and game
-	id serial primary key, match_id integer, player_id integer,
-	player_won boolean);
+-- count player wins
+create view winners as
+  select winner_id as id, count(winner_id) as matches from matches
+  group by winner_id;
 
+-- combine wins and losses views
+create view player_matches as
+  select * from winners full join losers using (id, matches);
 
 -- standings view returns id, name, win count, and match count
 create view standings as
 	select players.id, players.name,
-	-- count number of entries where player_won is true
-	count(nullif(player_won = false, true)) as wins,
-	-- count game stats to get matches
-	count(player_game_stats) as matches
-	-- join players and game stats by id
-	-- right join to include players that haven't played yet
-	from player_game_stats right join players
-	on player_game_stats.player_id = players.id
-	group by players.id
-	order by wins desc;
+	-- replace null results with 0
+	coalesce(winners.matches, '0') as wins,
+	coalesce(player_matches.matches, '0') as matches
+	-- left join to include players that haven't played yet
+	from players
+	left join winners on players.id = winners.id
+	left join player_matches on player_matches.id = players.id
+	group by players.id, winners.matches, player_matches.matches
+	order by winners.matches desc;
 

@@ -15,4 +15,4 @@ see tournament.py for available functions.
 Limitations
 ========
 
-- only an even number of players supported
+- only an even number of players is supported
