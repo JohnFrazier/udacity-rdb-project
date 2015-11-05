@@ -18,7 +18,7 @@ def deleteMatches():
     db, cur = connect()
     cur.execute("delete from matches;")
     db.commit()
-    cur.close()
+    db.close()
 
 
 def deletePlayers():
@@ -26,7 +26,7 @@ def deletePlayers():
     db, cur = connect()
     cur.execute("delete from players;")
     db.commit()
-    cur.close()
+    db.close()
 
 
 def countPlayers():
@@ -35,7 +35,7 @@ def countPlayers():
     cur.execute("select count(id) from players;")
     # remove tuple wrapper from fetched result.
     (count,) = cur.fetchone()
-    cur.close()
+    db.close()
     # return 0 instead of None when there are no players registered
     ret = count if count else 0
     return ret
@@ -53,7 +53,7 @@ def registerPlayer(name):
     db, cur = connect()
     cur.execute("insert into players ( name ) values ( %s );", (name,))
     db.commit()
-    cur.close()
+    db.close()
 
 
 def playerStandings():
@@ -72,7 +72,7 @@ def playerStandings():
     db, cur = connect()
     cur.execute("select * from playerStandings;")
     ret = cur.fetchall()
-    cur.close()
+    db.close()
     return ret
 
 
@@ -90,7 +90,7 @@ def reportMatch(winner, loser):
         "insert into matches (winner_id, loser_id) "
         "values (%s, %s) returning id;", (winner, loser))
     db.commit()
-    cur.close()
+    db.close()
 
 
 def swissPairings():
@@ -112,5 +112,5 @@ def swissPairings():
     db, cur = connect()
     cur.execute("select * from swissPairings;")
     ret = cur.fetchall()
-    cur.close()
+    db.close()
     return ret
