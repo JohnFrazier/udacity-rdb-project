@@ -35,7 +35,8 @@ create view player_matches as
 
 -- standings view returns id, name, win count, and match count
 create view standings as
-	select players.id, players.name,
+	select row_number() over (),
+	players.id, players.name,
 	-- replace null results with 0
 	coalesce(winners.matches, '0') as wins,
 	coalesce(player_matches.matches, '0') as matches
@@ -46,3 +47,28 @@ create view standings as
 	group by players.id, winners.matches, player_matches.matches
 	order by winners.matches desc;
 
+-- create view for playerStandings()
+create view playerStandings as
+	select id, name, wins, matches from standings;
+
+-- get rows with even row numbers for pairing
+-- add new row numbers for later joining
+create view left_players as
+	select row_number() over () as row, *
+	from standings s
+	where mod(s.row_number, 2) = 0;
+
+-- get rows with odd row numbers
+-- add new row numbers for later joining
+create view right_players as
+	select row_number() over () as row, *
+	from standings s
+	where mod(s.row_number, 2) = 1;
+
+-- join above on new row numbers and rename columns
+create view swissPairings as
+	select l.id as player1_id, l.name as player1_name,
+	r.id as player2_id, r.name as player2_name
+	from left_players l
+	inner join right_players r
+	using (row);

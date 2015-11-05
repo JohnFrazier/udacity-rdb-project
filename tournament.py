@@ -70,7 +70,7 @@ def playerStandings():
         matches: the number of matches the player has played
     """
     db, cur = connect()
-    cur.execute("select * from standings;")
+    cur.execute("select * from playerStandings;")
     ret = cur.fetchall()
     cur.close()
     return ret
@@ -110,11 +110,7 @@ def swissPairings():
     """
 
     db, cur = connect()
-    # fetch list of players ordered by wins
-    cur.execute("select id,name from standings;")
-    p = cur.fetchall()
-    # slice players list and pair up top players
-    ret = [(a[0], a[1], b[0], b[1]) for a, b in zip(p[::2], p[1::2])]
+    cur.execute("select * from swissPairings;")
+    ret = cur.fetchall()
     cur.close()
-
     return ret

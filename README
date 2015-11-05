@@ -1,18 +1,20 @@
-
 Udacity nano degree Project 2 - swiss tournament database.
 =============
 
-This is a library for recording swiss pairings games. 
-It contains a postgresql database to store players and match results.
+This is a library which can record and pair players under the swiss tournament
+system. It contains a postgresql database to store players and match results.
 
 Usage
 ======
 
-pysql -i tournament.sql
-import tournament
+1. pysql -i tournament.sql - this will drop tournament db and 
+create new tables and views
+
+2. python2 tournament_tests or import tournament
+
 see tournament.py for available functions.
 
 Limitations
 ========
 
-- only an even number of players is supported
+- only an even number of players is supported for match pairings.
